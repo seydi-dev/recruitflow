@@ -67,7 +67,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Angular", policy =>
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins("http://localhost:4200",
+                            "https://recruit-flow-front.web.app",
+                            "https://recruit-flow-front.firebaseapp.com"
+        )
               .AllowAnyHeader()
               .AllowAnyMethod()
     );
@@ -121,11 +124,11 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // ── Pipeline HTTP ─────────────────────────────────────────────
+app.UseSwagger();
+app.UseSwaggerUI();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
