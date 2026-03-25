@@ -1,0 +1,83 @@
+<div class="kb-shell">
+
+  <!-- Header -->
+  <div class="kb-header">
+    <div>
+      <div class="kb-header-title">Pipeline des candidatures</div>
+      <div class="kb-header-sub">{{ totalApps() }} candidature{{ totalApps()!==1?'s':'' }} actives</div>
+    </div>
+    <div class="kb-filters">
+      <button class="kb-filter-pill active">Tous</button>
+      <button class="kb-btn" (click)="goToInterviews($event)">+ Planifier entretien</button>
+    </div>
+  </div>
+
+  <!-- Skeleton -->
+  @if (loading()) {
+    <div class="kb-body">
+      @for (c of cols; track c.status) {
+        <div class="kb-col">
+          <div class="sk-header"></div>
+          @for (i of [1,2,3]; track i) { <div class="sk-card"></div> }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Board -->
+  @if (!loading()) {
+    <div class="kb-body" [class.is-dragging]="isDragging()">
+      @for (col of cols; track col.status) {
+        <div
+          class="kb-col"
+          [class.drag-over]="isOver(col.status)"
+          (dragover)="onDragOver($event, col.status)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event, col.status)"
+        >
+          <!-- Col header -->
+          <div class="kb-col-header">
+            <span class="kb-col-name">{{ col.label }}</span>
+            <span class="kb-col-count"
+                  [style.background]="col.colorBg"
+                  [style.color]="col.colorText">
+              {{ colCount(col.status) }}
+            </span>
+          </div>
+
+          <!-- Cards -->
+          @for (app of colApps(col.status)(); track app.id) {
+            <div
+              class="kb-card"
+              [class.dragged]="isDragged(app)"
+              draggable="true"
+              (dragstart)="onDragStart($event, app)"
+              (dragend)="onDragEnd()"
+            >
+              <div class="kb-card-name">{{ getName(app) }}</div>
+              <div class="kb-card-role">{{ app.jobTitle }}</div>
+              <div class="kb-card-footer">
+                <div class="kb-avatar"
+                     [style.background]="col.colorBg"
+                     [style.color]="col.colorText">
+                  {{ initials(getName(app)) }}
+                </div>
+                <span class="kb-date">{{ formatDate(app.appliedAt) }}</span>
+              </div>
+              @if (app.status === 'Interview') {
+                <button class="kb-plan-btn" (click)="goToInterviews($event)">
+                  📅 Planifier
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Add button -->
+          <button class="kb-add">+ Candidature</button>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

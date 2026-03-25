@@ -1,0 +1,137 @@
+<div class="jf-shell">
+
+  <!-- Header -->
+  <div class="jf-header">
+    <div class="jf-breadcrumb">
+      <a routerLink="/jobs" class="jf-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Offres d'emploi
+      </a>
+      <span class="jf-sep">/</span>
+      <span class="jf-current">{{ isEdit() ? 'Modifier' : 'Nouvelle offre' }}</span>
+    </div>
+    <div class="jf-title-row">
+      <div class="jf-title">{{ isEdit() ? "Modifier l'offre" : 'Nouvelle offre' }}</div>
+      <div class="jf-actions">
+        <a routerLink="/jobs" class="jf-btn-ghost">Annuler</a>
+        <button class="jf-btn-primary" [disabled]="form.invalid || saving()" (click)="submit()">
+          {{ saving() ? 'Enregistrement…' : isEdit() ? 'Mettre à jour' : 'Publier l\'offre' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <form [formGroup]="form" (ngSubmit)="submit()" class="jf-body">
+
+    <!-- Colonne principale -->
+    <div class="jf-main">
+
+      <div class="jf-card">
+        <div class="jf-card-title">Informations générales</div>
+
+        <div class="jf-field">
+          <label>Titre du poste <span class="req">*</span></label>
+          <input
+            formControlName="title"
+            type="text"
+            placeholder="ex: Développeur Full-Stack .NET / Angular"
+            [class.error]="f['title'].touched && f['title'].invalid"
+          />
+          @if (f['title'].touched && f['title'].errors?.['required']) {
+            <span class="field-error">Le titre est requis</span>
+          }
+        </div>
+
+        <div class="jf-row">
+          <div class="jf-field">
+            <label>Département <span class="req">*</span></label>
+            <input
+              formControlName="department"
+              type="text"
+              placeholder="ex: Technologies de l'information"
+              [class.error]="f['department'].touched && f['department'].invalid"
+            />
+          </div>
+          <div class="jf-field">
+            <label>Lieu <span class="req">*</span></label>
+            <input
+              formControlName="location"
+              type="text"
+              placeholder="ex: Montréal, QC"
+              [class.error]="f['location'].touched && f['location'].invalid"
+            />
+          </div>
+        </div>
+
+        <div class="jf-field">
+          <label>Description du poste <span class="req">*</span></label>
+          <textarea
+            formControlName="description"
+            rows="10"
+            placeholder="Décrivez le rôle, les responsabilités, les exigences et les avantages…"
+            [class.error]="f['description'].touched && f['description'].invalid"
+          ></textarea>
+          @if (f['description'].touched && f['description'].errors?.['required']) {
+            <span class="field-error">La description est requise</span>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Colonne latérale -->
+    <div class="jf-sidebar">
+
+      <div class="jf-card">
+        <div class="jf-card-title">Statut</div>
+        <div class="jf-field">
+          <select formControlName="status">
+            <option value="Draft">Brouillon</option>
+            <option value="Published">Publié</option>
+            <option value="Closed">Fermé</option>
+          </select>
+        </div>
+        <p class="jf-hint">
+          @if (f['status'].value === 'Draft') { L'offre ne sera pas visible par les candidats. }
+          @if (f['status'].value === 'Published') { L'offre sera visible et ouverte aux candidatures. }
+          @if (f['status'].value === 'Closed') { L'offre est fermée, plus de nouvelles candidatures. }
+        </p>
+      </div>
+
+      <div class="jf-card">
+        <div class="jf-card-title">Rémunération</div>
+        <div class="jf-row">
+          <div class="jf-field">
+            <label>Salaire min ($)</label>
+            <div class="jf-input-prefix">
+              <span>$</span>
+              <input formControlName="salaryMin" type="number" placeholder="85000" min="0"/>
+            </div>
+          </div>
+          <div class="jf-field">
+            <label>Salaire max ($)</label>
+            <div class="jf-input-prefix">
+              <span>$</span>
+              <input formControlName="salaryMax" type="number" placeholder="110000" min="0"/>
+            </div>
+          </div>
+        </div>
+        <p class="jf-hint">Laissez vide si vous préférez ne pas afficher la rémunération.</p>
+      </div>
+
+      <div class="jf-card jf-tips">
+        <div class="jf-card-title">💡 Conseils</div>
+        <ul>
+          <li>Soyez précis dans le titre — évitez les acronymes</li>
+          <li>Listez 3-5 responsabilités clés maximum</li>
+          <li>Distinguez les requis des atouts</li>
+          <li>Mentionnez la flexibilité (remote, hybride)</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </form>
+
+</div>

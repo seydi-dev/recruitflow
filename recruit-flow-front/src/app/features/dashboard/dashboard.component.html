@@ -1,0 +1,106 @@
+<div class="dashboard">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Tableau de bord</div>
+      <div class="topbar-sub">{{ today | date:'MMMM yyyy' }} — vue d'ensemble</div>
+    </div>
+    <button class="btn-primary" *ngIf="isRecruiter()">+ Nouvelle offre</button>
+  </div>
+
+  @if (loading()) {
+    <div class="kpi-grid">
+      @for (i of [1,2,3,4]; track i) { <div class="sk-kpi"></div> }
+    </div>
+  }
+
+  @if (!loading() && stats()) {
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      @for (card of statCards(); track card.label) {
+        <div class="kpi-card">
+          <div class="kpi-label">{{ card.label }}</div>
+          <div class="kpi-value">{{ card.value }}</div>
+          <div class="kpi-delta" [class.up]="card.deltaUp" [class.down]="!card.deltaUp">
+            {{ card.delta }}
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+
+      <!-- Bar chart candidatures par statut -->
+      <div class="rf-card">
+        <div class="rf-card-title">Candidatures par statut</div>
+        <div class="bar-wrap">
+          @for (item of chartData(); track item.status) {
+            <div class="bar-row">
+              <span class="bar-label">{{ item.label }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width]="item.pct + '%'" [style.background]="item.color"></div>
+              </div>
+              <span class="bar-count">{{ item.count }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Donut chart -->
+      <div class="rf-card">
+        <div class="rf-card-title">Répartition par département</div>
+        <div class="donut-wrap">
+          @if (chartReady()) {
+            <div class="canvas-wrap"><canvas #donutCanvas></canvas></div>
+          }
+          <div class="rf-legend">
+            @for (item of chartData(); track item.status) {
+              <div class="legend-item">
+                <span class="legend-dot" [style.background]="item.color"></span>
+                <span>{{ item.label }} — {{ item.count }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tableau candidatures récentes -->
+    <div class="rf-table-wrap">
+      <div class="rf-card-title">Candidatures récentes</div>
+      <table class="rf-table">
+        <thead>
+        <tr>
+          <th>Candidat</th>
+          <th>Poste</th>
+          <th>Statut</th>
+          <th>Date</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (app of recentApps(); track app.id) {
+            <tr>
+              <td>{{ app.candidateName }}</td>
+              <td>{{ app.jobTitle }}</td>
+              <td>
+                <span class="rf-badge" [class]="badgeClass(app.status)">
+                  {{ statusLabel(app.status) }}
+                </span>
+              </td>
+              <td>{{ app.appliedAt | date:'dd MMM' }}</td>
+            </tr>
+          }
+          @if (recentApps().length === 0) {
+            <tr><td colspan="4" style="text-align:center;padding:20px;color:var(--color-text-tertiary)">Aucune candidature récente</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  }
+
+</div>

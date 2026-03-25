@@ -1,0 +1,24 @@
+<div class="page">
+  <div class="page-header"><h1 class="page-title">Évaluations</h1><p class="page-sub">{{ evaluations().length }} évaluation{{ evaluations().length!==1?'s':'' }}</p></div>
+  @if (loading()) { <div class="loading">Chargement…</div> }
+  @if (!loading() && evaluations().length === 0) { <div class="empty">Aucune évaluation pour l'instant</div> }
+  @if (!loading() && evaluations().length > 0) {
+    <div class="eval-grid">
+      @for (ev of evaluations(); track ev.id) {
+        <div class="eval-card">
+          <div class="eval-top">
+            <div><h3 class="eval-name">{{ ev.candidateName ?? 'Candidat' }}</h3><p class="eval-job">{{ ev.jobTitle }}</p></div>
+            <span class="eval-score" [style.color]="scoreColor(avg(ev))">{{ avg(ev) }}<span class="denom">/10</span></span>
+          </div>
+          <div class="bars">
+            <div class="bar-row"><span>Technique</span><div class="bar-bg"><div class="bar-fill" [style.width]="barW(ev.technicalScore)" [style.background]="scoreColor(ev.technicalScore)"></div></div><span>{{ ev.technicalScore }}</span></div>
+            <div class="bar-row"><span>Communication</span><div class="bar-bg"><div class="bar-fill" [style.width]="barW(ev.communicationScore)" [style.background]="scoreColor(ev.communicationScore)"></div></div><span>{{ ev.communicationScore }}</span></div>
+            <div class="bar-row"><span>Culture</span><div class="bar-bg"><div class="bar-fill" [style.width]="barW(ev.culturalFitScore)" [style.background]="scoreColor(ev.culturalFitScore)"></div></div><span>{{ ev.culturalFitScore }}</span></div>
+          </div>
+          @if (ev.comments) { <p class="comments">« {{ ev.comments }} »</p> }
+          <div class="eval-footer"><span class="rec">{{ ev.recommendation }}</span><span class="date">{{ ev.createdAt | date:'dd MMM yyyy' }}</span></div>
+        </div>
+      }
+    </div>
+  }
+</div>

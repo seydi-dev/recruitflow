@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #f5f6f8;
+  color: #1a1d23;
+}
+
+:root {
+  --color-background-primary:   #ffffff;
+  --color-background-secondary: #f5f6f8;
+  --color-background-tertiary:  #eef0f3;
+  --color-border-primary:       #c8cdd6;
+  --color-border-secondary:     #dde1e8;
+  --color-border-tertiary:      #eaecf0;
+  --color-text-primary:         #1a1d23;
+  --color-text-secondary:       #6b7280;
+  --color-text-tertiary:        #9ca3af;
+  --color-text-success:         #085041;
+  --color-text-warning:         #633806;
+  --color-text-danger:          #791f1f;
+  --color-accent:               #185FA5;
+  --color-accent-light:         #E6F1FB;
+  --color-accent-mid:           #378ADD;
+  --border-radius-sm:           4px;
+  --border-radius-md:           6px;
+  --border-radius-lg:           10px;
+}/* You can add global styles to this file, and also import other style files */

@@ -1,0 +1,21 @@
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/
+
+# Frontend
+recruit-flow-front/node_modules/
+recruit-flow-front/dist/
+recruit-flow-front/coverage/
+recruit-flow-front/.angular/
+
+# Backend
+**/bin/
+**/obj/
+
+# Logs
+*.log
+
+# Env files
+.env
+.env.*

@@ -1,0 +1,175 @@
+$w:  200px;
+$wc: 56px;
+$t:  220ms cubic-bezier(.4,0,.2,1);
+
+.shell {
+  display: grid;
+  grid-template-columns: $w 1fr;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-background-secondary);
+  transition: grid-template-columns $t;
+
+  &.collapsed { grid-template-columns: $wc 1fr; }
+}
+
+// ── Sidebar ───────────────────────────────────────────────────
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background-primary);
+  border-right: 0.5px solid var(--color-border-tertiary);
+  overflow: hidden;
+  width: $w;
+  transition: width $t;
+
+  .shell.collapsed & { width: $wc; }
+}
+
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px 16px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.brand-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #185FA5;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  transition: opacity $t;
+  .shell.collapsed & { opacity: 0; }
+}
+
+.collapse-btn {
+  flex-shrink: 0;
+  width: 24px; height: 24px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: all 150ms;
+
+  &:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+}
+
+// ── Nav ───────────────────────────────────────────────────────
+.nav {
+  flex: 1;
+  padding: 8px 0;
+  overflow-y: auto; overflow-x: hidden;
+}
+
+.nav-group { margin-bottom: 4px; }
+
+.nav-group-label {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--color-text-tertiary);
+  padding: 8px 20px 4px;
+  white-space: nowrap;
+  transition: opacity $t;
+  .shell.collapsed & { opacity: 0; }
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 150ms;
+  white-space: nowrap;
+  overflow: hidden;
+
+  &:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+
+  &.active {
+    color: #185FA5;
+    background: #E6F1FB;
+    font-weight: 500;
+  }
+}
+
+.nav-icon {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  display: grid; place-items: center;
+}
+
+.nav-text {
+  transition: opacity $t;
+  .shell.collapsed & { opacity: 0; }
+}
+
+// ── Bottom ────────────────────────────────────────────────────
+.sidebar-bottom {
+  border-top: 0.5px solid var(--color-border-tertiary);
+  padding: 12px 0 8px;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px 10px;
+  overflow: hidden;
+}
+
+.user-avatar {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #E6F1FB;
+  color: #185FA5;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 600;
+}
+
+.user-info {
+  display: flex; flex-direction: column; overflow: hidden;
+  transition: opacity $t;
+  .shell.collapsed & { opacity: 0; }
+}
+
+.user-name  { font-size: 12.5px; font-weight: 500; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role  { font-size: 11px; color: var(--color-text-secondary); text-transform: capitalize; }
+
+.logout-btn {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 8px 20px;
+  border: none; background: transparent;
+  color: var(--color-text-secondary); font-size: 13px;
+  cursor: pointer; text-align: left; overflow: hidden; white-space: nowrap;
+  transition: all 150ms;
+
+  &:hover { background: var(--color-background-secondary); color: #dc2626; }
+}
+
+// ── Main ──────────────────────────────────────────────────────
+.main { overflow-y: auto; background: var(--color-background-secondary); }
+
+.page-wrapper { padding: 24px; max-width: 1400px; }

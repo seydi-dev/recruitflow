@@ -1,0 +1,212 @@
+.dashboard { display: flex; flex-direction: column; gap: 20px; }
+
+// ── Topbar ────────────────────────────────────────────────────
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topbar-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.topbar-sub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.btn-primary {
+  padding: 7px 14px;
+  border: none;
+  border-radius: var(--border-radius-md);
+  background: #185FA5;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms;
+
+  &:hover { background: #0C447C; }
+}
+
+// ── KPI Grid ──────────────────────────────────────────────────
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.kpi-card {
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 14px 16px;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.kpi-delta {
+  font-size: 11px;
+  margin-top: 4px;
+
+  &.up   { color: var(--color-text-success); }
+  &.down { color: var(--color-text-danger); }
+}
+
+// ── Charts ────────────────────────────────────────────────────
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rf-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+}
+
+.rf-card-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 14px;
+}
+
+// ── Bar chart ─────────────────────────────────────────────────
+.bar-wrap { display: flex; flex-direction: column; gap: 8px; }
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.bar-label {
+  width: 80px;
+  color: var(--color-text-secondary);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--color-background-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 600ms ease;
+  min-width: 4px;
+}
+
+.bar-count {
+  width: 24px;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  text-align: right;
+}
+
+// ── Donut ─────────────────────────────────────────────────────
+.donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.canvas-wrap {
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.rf-legend { display: flex; flex-direction: column; gap: 8px; }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+// ── Table ─────────────────────────────────────────────────────
+.rf-table-wrap {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+}
+
+.rf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: fixed;
+
+  th {
+    color: var(--color-text-secondary);
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-weight: 500;
+  }
+
+  td {
+    padding: 8px 10px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    color: var(--color-text-primary);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--color-background-secondary); }
+}
+
+.rf-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+
+  &.s-new      { background: #E6F1FB; color: #0C447C; }
+  &.s-screen   { background: #EEEDFE; color: #3C3489; }
+  &.s-phone    { background: #FAEEDA; color: #633806; }
+  &.s-hired    { background: #E1F5EE; color: #085041; }
+  &.s-rejected { background: #FCEBEB; color: #791F1F; }
+}
+
+// ── Skeleton ──────────────────────────────────────────────────
+.sk-kpi {
+  height: 80px;
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  animation: pulse 1.4s ease infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }

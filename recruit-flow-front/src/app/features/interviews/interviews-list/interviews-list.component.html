@@ -1,0 +1,290 @@
+<div class="cal-shell">
+
+  <!-- Header -->
+  <div class="cal-header">
+    <div>
+      <div class="cal-header-title">Calendrier des entretiens</div>
+      <div class="cal-header-sub">{{ upcomingCount() }} entretien{{ upcomingCount()!==1?'s':'' }} planifié{{ upcomingCount()!==1?'s':'' }}</div>
+    </div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" (click)="prevMonth()">&#8249;</button>
+      <span class="cal-nav-month">{{ monthLabel() | titlecase }}</span>
+      <button class="cal-nav-btn" (click)="nextMonth()">&#8250;</button>
+      <button class="cal-nav-today" (click)="goToToday()">Aujourd'hui</button>
+      @if (isRecruiter()) {
+        <button class="cal-nav-plan" (click)="openForm()">+ Planifier</button>
+      }
+    </div>
+  </div>
+
+  <div class="cal-body">
+
+    <!-- Grille calendrier -->
+    <div class="cal-grid-wrap">
+      <div class="cal-days-header">
+        @for (d of DAY_NAMES; track d) {
+          <div class="cal-day-name">{{ d }}</div>
+        }
+      </div>
+
+      <div class="cal-grid">
+        @for (day of calDays(); track day.date.toISOString()) {
+          <div
+            class="cal-cell"
+            [class.other-month]="!day.isCurrentMonth"
+            [class.today]="day.isToday"
+            [class.selected]="isSelectedDay(day)"
+            (click)="selectDay(day)"
+          >
+            <div class="cal-cell-num">
+              @if (day.isToday) { <span>{{ day.day }}</span> }
+              @else { {{ day.day }} }
+            </div>
+            @for (iv of day.interviews.slice(0,2); track iv.id) {
+              <div class="cal-event" [class]="typeBadgeClass(iv.type)">
+                {{ getName(iv) }}
+              </div>
+            }
+            @if (day.interviews.length > 2) {
+              <div class="cal-event-more">+{{ day.interviews.length - 2 }}</div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Sidebar entretiens du jour -->
+    <div class="cal-sidebar">
+      <div class="cal-sidebar-title">
+        Entretiens — {{ selectedDayLabel() }}
+      </div>
+
+      @if (loading()) {
+        <div class="cal-loading">Chargement…</div>
+      }
+
+      @if (!loading() && selectedDayInterviews().length === 0) {
+        <div class="cal-empty">Aucun entretien ce jour</div>
+      }
+
+      @for (iv of selectedDayInterviews(); track iv.id) {
+        <div class="cal-interview-card">
+          <div class="cal-int-time">
+            <span class="cal-int-time-dot" [style.background]="typeColor(iv.type)"></span>
+            {{ formatTime(iv.scheduledAt) }} — {{ formatEndTime(iv.scheduledAt, iv.durationMinutes) }}
+          </div>
+          <div class="cal-int-name">{{ getName(iv) }}</div>
+          <div class="cal-int-role">{{ iv.jobTitle }}</div>
+          <div class="cal-int-meta">
+            <span class="cal-int-badge" [class]="typeBadgeClass(iv.type)">{{ typeLabel(iv.type) }}</span>
+            @if (iv.meetingUrl && iv.status === 'Scheduled') {
+              <a [href]="iv.meetingUrl" target="_blank" class="cal-int-link">Rejoindre ↗</a>
+            }
+            @if (iv.status === 'Completed') {
+              <span class="cal-int-badge ev-final">Complété</span>
+            }
+            @if (iv.status === 'Cancelled') {
+              <span class="cal-int-badge ev-phone">Annulé</span>
+            }
+          </div>
+          @if (isRecruiter() && iv.status === 'Scheduled') {
+            <div class="cal-int-actions">
+              <button class="cal-action-btn eval" (click)="openEval(iv)">⭐ Évaluer</button>
+            </div>
+          }
+        </div>
+      }
+
+      @if (isRecruiter()) {
+        <button class="cal-add-btn" (click)="openForm()">+ Planifier un entretien</button>
+      }
+    </div>
+
+  </div>
+</div>
+
+<!-- Drawer Planification -->
+@if (showForm()) {
+  <div class="drawer-backdrop" (click)="closeForm()"></div>
+  <aside class="drawer">
+    <div class="drawer-header">
+      <h3>Planifier un entretien</h3>
+      <button class="close-btn" (click)="closeForm()">×</button>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="submitForm()" class="drawer-form">
+      <div class="form-group">
+        <label>Candidature *</label>
+        <select formControlName="applicationId">
+          <option value="">Sélectionner…</option>
+          @for (app of applications(); track app.id) {
+            <option [value]="app.id">{{ getAppName(app) }} — {{ app.jobTitle }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date et heure *</label>
+        <input type="datetime-local" formControlName="scheduledAt"/>
+        @if (f['scheduledAt'].touched && f['scheduledAt'].errors?.['pastDate']) {
+          <span class="form-error">La date doit être dans le futur</span>
+        }
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type *</label>
+          <select formControlName="type">
+            <option value="Phone">📞 Téléphone</option>
+            <option value="Video">🎥 Vidéo</option>
+            <option value="OnSite">🏢 Présentiel</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Durée (min)</label>
+          <input type="number" formControlName="durationMinutes" min="15" step="15"/>
+        </div>
+      </div>
+      @if (showUrl) {
+        <div class="form-group">
+          <label>Lien de réunion</label>
+          <input type="url" formControlName="meetingUrl" placeholder="https://meet.google.com/…"/>
+        </div>
+      }
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea formControlName="notes" rows="3" placeholder="Instructions…"></textarea>
+      </div>
+      <div class="drawer-actions">
+        <button type="button" class="btn-ghost" (click)="closeForm()">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving2()">
+          {{ saving2() ? 'Planification…' : 'Planifier' }}
+        </button>
+      </div>
+    </form>
+  </aside>
+}
+
+<!-- Drawer Évaluation -->
+@if (showEval()) {
+  <div class="drawer-backdrop" (click)="closeEval()"></div>
+  <aside class="drawer drawer-eval">
+    <div class="drawer-header">
+      <div>
+        <h3>Évaluation</h3>
+        <p class="drawer-sub">{{ getName(evalTarget()!) }} · {{ evalTarget()!.jobTitle }}</p>
+      </div>
+      <button class="close-btn" (click)="closeEval()">×</button>
+    </div>
+    <div class="eval-body">
+
+      <!-- Score -->
+      <div class="ev-shell">
+        <div class="ev-header">
+          <div class="ev-candidate">
+            <div class="ev-avatar">{{ getName(evalTarget()!).slice(0,2).toUpperCase() }}</div>
+            <div>
+              <div class="ev-name">{{ getName(evalTarget()!) }}</div>
+              <div class="ev-role">{{ evalTarget()!.jobTitle }}</div>
+            </div>
+          </div>
+          <span class="ev-status-badge">En cours d'évaluation</span>
+        </div>
+
+        <div class="ev-body">
+          <div class="ev-form">
+            <div class="ev-section-title">Compétences techniques</div>
+
+            <div class="ev-criterion">
+              <div class="ev-crit-header">
+                <span class="ev-crit-label">Technique</span>
+                <span class="ev-crit-score">{{ techScore() }}/10</span>
+              </div>
+              <div class="ev-stars">
+                @for (star of stars(); track star) {
+                  <button type="button" class="ev-star"
+                          [class.filled]="starFilled(techScore(), star, hoveredTech())"
+                          (mouseenter)="hoveredTech.set(star)"
+                          (mouseleave)="hoveredTech.set(0)"
+                          (click)="setScore('tech', star)">★</button>
+                }
+              </div>
+              <input type="range" min="0" max="10" step="1" [value]="techScore()"
+                     (input)="techScore.set(+$any($event.target).value)" class="ev-slider"/>
+            </div>
+
+            <div class="ev-section-title" style="margin-top:16px">Compétences comportementales</div>
+
+            <div class="ev-criterion">
+              <div class="ev-crit-header">
+                <span class="ev-crit-label">Communication</span>
+                <span class="ev-crit-score">{{ commScore() }}/10</span>
+              </div>
+              <div class="ev-stars">
+                @for (star of stars(); track star) {
+                  <button type="button" class="ev-star"
+                          [class.filled]="starFilled(commScore(), star, hoveredComm())"
+                          (mouseenter)="hoveredComm.set(star)"
+                          (mouseleave)="hoveredComm.set(0)"
+                          (click)="setScore('comm', star)">★</button>
+                }
+              </div>
+              <input type="range" min="0" max="10" step="1" [value]="commScore()"
+                     (input)="commScore.set(+$any($event.target).value)" class="ev-slider"/>
+            </div>
+
+            <div class="ev-criterion">
+              <div class="ev-crit-header">
+                <span class="ev-crit-label">Culture fit</span>
+                <span class="ev-crit-score">{{ cultScore() }}/10</span>
+              </div>
+              <div class="ev-stars">
+                @for (star of stars(); track star) {
+                  <button type="button" class="ev-star"
+                          [class.filled]="starFilled(cultScore(), star, hoveredCult())"
+                          (mouseenter)="hoveredCult.set(star)"
+                          (mouseleave)="hoveredCult.set(0)"
+                          (click)="setScore('cult', star)">★</button>
+                }
+              </div>
+              <input type="range" min="0" max="10" step="1" [value]="cultScore()"
+                     (input)="cultScore.set(+$any($event.target).value)" class="ev-slider"/>
+            </div>
+
+            <div style="margin-top:16px">
+              <div class="ev-section-title">Notes</div>
+              <textarea class="ev-note" rows="3" placeholder="Observations…"
+                        [value]="comments()"
+                        (input)="comments.set($any($event.target).value)"></textarea>
+            </div>
+          </div>
+
+          <div class="ev-sidebar">
+            <div class="ev-score-ring-wrap">
+              <div class="ev-score-total" [style.color]="scoreColor(globalScore())">{{ globalScore() }}</div>
+              <div class="ev-score-label">Score global / 10</div>
+            </div>
+
+            <div class="ev-reco">
+              <div class="ev-reco-title">Recommandation</div>
+              <div class="ev-reco-options">
+                @for (rec of RECS; track rec.value) {
+                  <button type="button" class="ev-reco-opt"
+                          [class.sel]="selectedRec() === rec.value"
+                          [style.border-color]="selectedRec() === rec.value ? rec.color : ''"
+                          [style.background]="selectedRec() === rec.value ? rec.bg : ''"
+                          [style.color]="selectedRec() === rec.value ? rec.color : ''"
+                          (click)="selectedRec.set(rec.value)">
+                    {{ rec.label }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <button class="ev-save" [disabled]="saving()" (click)="submitEval()">
+              {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+}

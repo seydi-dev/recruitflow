@@ -1,0 +1,26 @@
+<div class="page">
+  <div class="page-header"><h1 class="page-title">Entretiens</h1></div>
+  @if (loading()) { <div class="loading">Chargement…</div> }
+  @if (!loading() && interviews().length === 0) { <div class="empty">Aucun entretien trouvé</div> }
+  @if (!loading() && interviews().length > 0) {
+    <div class="list">
+      @for (iv of interviews(); track iv.id) {
+        <div class="iv-card">
+          <div class="iv-time"><span class="time">{{ formatTime(iv.scheduledAt) }}</span><span class="dur">{{ iv.durationMinutes }}min</span></div>
+          <div class="iv-body">
+            <div class="iv-top">
+              <span class="iv-type">{{ typeIcon(iv.type) }} {{ iv.type }}</span>
+              <span class="iv-status" [class]="'s-'+iv.status.toLowerCase()">{{ statusLabel(iv.status) }}</span>
+            </div>
+            <h3 class="iv-name">{{ iv.candidateName ?? 'Candidat' }}</h3>
+            <p class="iv-job">{{ iv.jobTitle }}</p>
+            @if (iv.meetingUrl && iv.status === 'Scheduled') {
+              <a [href]="iv.meetingUrl" target="_blank" class="meeting-link">🎥 Rejoindre</a>
+            }
+          </div>
+          <div class="iv-date">{{ iv.scheduledAt | date:'dd MMM yyyy' }}</div>
+        </div>
+      }
+    </div>
+  }
+</div>

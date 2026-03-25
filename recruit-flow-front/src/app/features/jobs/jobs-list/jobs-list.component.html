@@ -1,0 +1,136 @@
+<div class="jobs-shell">
+
+  <!-- Header -->
+  <div class="jobs-header">
+    <div>
+      <div class="jobs-title">Offres d'emploi</div>
+      <div class="jobs-sub">{{ total() }} offre{{ total()!==1?'s':'' }} au total</div>
+    </div>
+    <div class="jobs-controls">
+      <input
+        class="jobs-search"
+        type="text"
+        placeholder="Rechercher une offre…"
+        [value]="search()"
+        (input)="onSearch($any($event.target).value)"
+      />
+      <select class="jobs-select" (change)="onStatus($any($event.target).value)">
+        <option value="">Tous les statuts</option>
+        <option value="Draft">Brouillon</option>
+        <option value="Published">Ouvert</option>
+        <option value="Closed">Fermé</option>
+      </select>
+      <a *ngIf="isRecruiter()" routerLink="/jobs/new" class="jobs-btn">+ Nouvelle offre</a>
+    </div>
+  </div>
+
+  <!-- Skeleton -->
+  @if (loading()) {
+    <div class="jobs-body">
+      @for (i of [1,2,3,4,5,6]; track i) { <div class="sk-card"></div> }
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (isEmpty()) {
+    <div class="jobs-empty">
+      <p>Aucune offre trouvée</p>
+      <a *ngIf="isRecruiter()" routerLink="/jobs/new" class="jobs-btn">+ Nouvelle offre</a>
+    </div>
+  }
+
+  <!-- Cards grid -->
+  @if (!loading() && jobs().length > 0) {
+    <div class="jobs-body">
+      @for (job of jobs(); track job.id) {
+        <div class="job-card" [class.opacity-low]="job.status === 'Closed' || job.status === 'Draft'">
+
+          <div class="job-card-top">
+            <div class="job-dept-icon" [style.background]="deptColor(job.department)">
+              {{ deptIcon(job.department) }}
+            </div>
+            <span class="job-status-badge" [class]="statusClass(job.status)">
+              {{ statusLabel(job.status) }}
+            </span>
+          </div>
+
+          <div class="job-title">{{ job.title }}</div>
+
+          <div class="job-meta">
+            <span class="job-meta-tag">{{ job.department }}</span>
+            <span class="job-meta-sep">·</span>
+            <span class="job-meta-tag">{{ job.location }}</span>
+            @if (formatSalary(job.salaryMin, job.salaryMax)) {
+              <span class="job-meta-sep">·</span>
+              <span class="job-meta-tag">{{ formatSalary(job.salaryMin, job.salaryMax) }}</span>
+            }
+          </div>
+
+          @if (job.status === 'Published') {
+            <div>
+              <div class="job-progress-meta">
+                <span>{{ job.applicationCount ?? 0 }} candidatures</span>
+                <span>Objectif : 25</span>
+              </div>
+              <div class="job-progress">
+                <div class="job-progress-fill"
+                     [style.width]="progressPct(job.applicationCount ?? 0) + '%'"
+                     [style.background]="progressColor(job.status)">
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="job-stats">
+            <div class="job-stat">
+              <div class="job-stat-val">{{ job.applicationCount ?? 0 }}</div>
+              <div class="job-stat-label">Candidats</div>
+            </div>
+            <div class="job-stat">
+              <div class="job-stat-val">0</div>
+              <div class="job-stat-label">Entretiens</div>
+            </div>
+            <div class="job-stat">
+              <div class="job-stat-val">{{ job.postedAt | date:'dd/MM' }}</div>
+              <div class="job-stat-label">Publié</div>
+            </div>
+          </div>
+
+          <div class="job-actions">
+            @if (isRecruiter()) {
+              <a [routerLink]="['/jobs', job.id, 'edit']" class="job-action-btn">Éditer</a>
+              <button class="job-action-btn primary" (click)="null">Voir candidats</button>
+            }
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Pagination -->
+  @if (totalPages() > 1) {
+    <div class="jobs-pagination">
+      <span>Affichage {{ (page()-1)*pageSize+1 }}–{{ page()*pageSize > total() ? total() : page()*pageSize }} sur {{ total() }} offres</span>      <div style="display:flex;gap:6px">
+        <button class="pag-btn" [disabled]="page()===1" (click)="goToPage(page()-1)">Précédent</button>
+        <button class="pag-btn active">{{ page() }}</button>
+        <button class="pag-btn" [disabled]="page()===totalPages()" (click)="goToPage(page()+1)">Suivant</button>
+      </div>
+    </div>
+  }
+
+</div>
+
+<!-- Modal suppression -->
+@if (jobToDelete()) {
+  <div class="modal-backdrop" (click)="cancelDelete()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>Supprimer l'offre ?</h3>
+      <p>« {{ jobToDelete()?.title }} » sera supprimée définitivement.</p>
+      <div class="modal-actions">
+        <button class="btn-ghost" (click)="cancelDelete()">Annuler</button>
+        <button class="btn-danger" (click)="executeDelete()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+}
