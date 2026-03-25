@@ -1,4 +1,4 @@
-name: RecruitFlow Frontend CI
+name: RecruitFlow CI
 
 on:
   push:
@@ -7,37 +7,69 @@ on:
     branches: [ main ]
 
 jobs:
-  frontend-ci:
+  e2e-tests:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: recruit-flow-front
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # -------------------------
+      # Setup Node
+      # -------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: recruit-flow-front/package-lock.json
 
-      - name: Install dependencies
+      # -------------------------
+      # Install frontend
+      # -------------------------
+      - name: Install frontend dependencies
+        working-directory: recruit-flow-front
         run: npm ci
 
-      - name: Run Jest unit tests
+      # -------------------------
+      # Run Jest
+      # -------------------------
+      - name: Run frontend unit tests
+        working-directory: recruit-flow-front
         run: npm run test -- --runInBand
 
-      - name: Build Angular application
+      # -------------------------
+      # Build Angular
+      # -------------------------
+      - name: Build Angular
+        working-directory: recruit-flow-front
         run: npm run build -- --configuration production
 
-      - name: Run Cypress E2E tests
+      # -------------------------
+      # Setup .NET
+      # -------------------------
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # -------------------------
+      # Start backend API
+      # -------------------------
+      - name: Start backend API
+        working-directory: RecruitFlow.API
+        run: |
+          dotnet restore
+          dotnet build
+          dotnet run &
+
+      # -------------------------
+      # Run Cypress
+      # -------------------------
+      - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
           working-directory: recruit-flow-front
           start: npm start
-          wait-on: http://localhost:4200
+          wait-on: |
+            http://localhost:4200
+            http://localhost:5072
           browser: chrome
