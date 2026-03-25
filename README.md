@@ -1,175 +1,242 @@
 RecruitFlow
 
-Modern Recruitment Management Platform
 
-RecruitFlow est une plateforme complète de gestion du recrutement permettant aux entreprises de publier des offres, suivre les candidatures et gérer leur pipeline de recrutement via une interface kanban interactive.
 
-Le projet met en œuvre une architecture moderne full-stack, des tests automatisés et un pipeline CI/CD, reflétant des pratiques professionnelles utilisées en entreprise.
 
-Aperçu
 
-RecruitFlow permet de :
 
-publier et gérer des offres d’emploi
-suivre les candidatures dans un pipeline visuel
-organiser les entrevues
-analyser les données de recrutement via un dashboard
-automatiser la qualité du code avec tests et CI/CD
-Stack technologique
+
+
+
+
+RecruitFlow est une plateforme moderne de gestion du recrutement permettant aux entreprises de gérer leur pipeline de recrutement de manière visuelle.
+
+Fonctionnalités principales :
+
+gestion des offres d’emploi
+suivi des candidatures
+pipeline de recrutement en kanban
+gestion des entrevues
+dashboard analytique
+
+Le projet implémente une architecture full-stack moderne avec Angular + ASP.NET Core, accompagnée de tests automatisés et CI/CD.
+
+Architecture du système
+```mermaid
+flowchart LR
+
+User --> AngularFrontend
+
+AngularFrontend --> ASPNETAPI
+
+ASPNETAPI --> BusinessServices
+
+BusinessServices --> Repositories
+
+Repositories --> PostgreSQL
+```
+Architecture Backend (Clean Architecture)
+```mermaid
+flowchart TD
+
+Controller --> Service
+
+Service --> Repository
+
+Repository --> Database
+```
+Responsabilités des couches :
+
+## Responsabilités des couches
+
+| Couche | Responsabilité |
+|--------|----------------|
+| API | endpoints HTTP |
+| Services | logique métier |
+| Repositories | accès données |
+| Core | entités et interfaces |
+
+
+## Structure du projet
+
+```text
+RecruitFlow
+│
+├── recruit-flow-front
+│   Angular application
+│
+├── RecruitFlow.API
+│   ASP.NET Core Web API
+│
+├── RecruitFlow.Core
+│   Domain entities + interfaces
+│
+├── RecruitFlow.Infrastructure
+│   Repositories + services
+│
+└── RecruitFlow.Tests
+    Backend unit tests
+```
+
+## Stack technologique
+
+### Frontend
+
+- Angular 19
+- Angular Material
+- RxJS
+- SCSS
+
+### Backend
+
+- ASP.NET Core 8
+- Entity Framework Core
+- PostgreSQL
+- JWT Authentication
+- Swagger
+
+### Tests
+
+- Jest
+- Cypress
+- xUnit
+- Moq
+## CI/CD Pipeline
+
+```mermaid
+flowchart LR
+
+Push --> GitHubActions
+
+GitHubActions --> FrontendTests
+GitHubActions --> BackendTests
+
+FrontendTests --> Jest
+FrontendTests --> Cypress
+
+BackendTests --> xUnit
+
+Jest --> Build
+Cypress --> Build
+xUnit --> Build
+```
+Chaque push déclenche automatiquement :
+
 Frontend
-Angular 19
-Angular Material
-RxJS
-SCSS
-
-Tests :
-
-Jest (unit tests)
-Cypress (end-to-end tests)
-Backend
-ASP.NET Core 8
-Entity Framework Core
-PostgreSQL
-JWT Authentication
-Swagger API documentation
-
-Tests :
-
-xUnit
-Moq
-CI/CD
-
-GitHub Actions :
-
-Frontend pipeline
 
 installation dépendances
-tests unitaires (Jest)
+tests unitaires Jest
 build Angular
-tests E2E (Cypress)
+tests E2E Cypress
 
-Backend pipeline
+Backend
 
 restore
 build
-tests unitaires (xUnit)
-Architecture
-
-Le backend suit une séparation claire des responsabilités inspirée de Clean Architecture.
-
-Controller
-   ↓
-Service (Business Logic)
-   ↓
-Repository (Data Access)
-   ↓
-Database (PostgreSQL)
-
-Structure du projet :
-
-RecruitFlow
-│
-├── recruit-flow-front        Angular application
-│
-├── RecruitFlow.API           ASP.NET Core API
-│
-├── RecruitFlow.Core          Domain entities + interfaces
-│
-├── RecruitFlow.Infrastructure
-│       ├── repositories
-│       ├── services
-│       └── database
-│
-└── RecruitFlow.Tests         Backend unit tests
-Fonctionnalités principales
-Authentification
-JWT authentication
-login / register
-gestion des rôles
-Gestion des offres
-
-Création et gestion des offres d’emploi :
-
-titre
-description
-département
-localisation
-salaire min / max
-statut (Draft / Published / Closed)
+tests xUnit
 Pipeline de recrutement
+## Recruitment Pipeline
 
-Chaque candidature évolue dans un pipeline :
+```mermaid
+flowchart LR
 
-Pending
-Reviewing
-Interview
-Offer
-Rejected
-Withdrawn
+Pending --> Reviewing
+Reviewing --> Interview
+Interview --> Offer
+Interview --> Rejected
+Pending --> Withdrawn
+```
+Chaque candidature évolue dans ce pipeline.
 
-Les recruteurs peuvent déplacer les candidatures via une interface kanban drag & drop.
+Les recruteurs peuvent déplacer les candidatures via drag & drop dans le kanban.
 
-Gestion des candidatures
+Flow technique Drag & Drop
+```mermaid
+sequenceDiagram
 
-Fonctionnalités :
+Recruiter->>Frontend: Drag card
 
-soumission candidature
-suivi statut
-retrait candidature
-gestion des entrevues
-Dashboard
+Frontend->>API: PATCH /applications/{id}/status
 
-Visualisation des données :
+API->>Service: UpdateStatus
 
-nombre d’offres actives
-candidatures
-entrevues
-progression pipeline
+Service->>Repository: Update application
+
+Repository->>Database: Save changes
+
+API-->>Frontend: Updated status
+
+Frontend-->>Recruiter: UI updated
+```
+## Flow Authentification JWT
+
+```mermaid
+sequenceDiagram
+
+User->>Frontend: Login request
+
+Frontend->>API: POST /auth/login
+
+API->>AuthService: Validate credentials
+
+AuthService->>Database: Check user
+
+Database-->>AuthService: User data
+
+AuthService-->>API: Generate JWT
+
+API-->>Frontend: Return token
+
+Frontend->>LocalStorage: Save JWT
+
+Frontend->>API: Authenticated requests
+```
 Qualité logicielle
 
-RecruitFlow inclut plusieurs niveaux de tests.
+Le projet utilise plusieurs niveaux de tests.
 
-Frontend
-
-Unit tests
-
+Tests Frontend (Unit)
 npm run test
 
-Technologie :
+Framework :
 
 Jest
-End-to-End
+Tests End-to-End
 npx cypress run
 
-Tests simulant un utilisateur réel :
+Scénarios testés :
 
 login
-création offre
-déplacement candidature dans le kanban
-Backend
-dotnet test RecruitFlow.Tests
-
-Tests unitaires couvrant :
-
-logique métier des services
-validation des règles métier
-gestion des erreurs
+création d’offre
+navigation application
+drag & drop kanban
+Tests Backend
+dotnet test
 
 Frameworks :
 
 xUnit
 Moq
+
+Les tests couvrent :
+
+logique métier des services
+validations métier
+gestion erreurs
 Installation locale
 Cloner le projet
 git clone https://github.com/USERNAME/recruitflow.git
 cd recruitflow
 Backend
 cd RecruitFlow.API
+
 dotnet restore
+
 dotnet ef database update
+
 dotnet run
 
-API :
+API disponible :
 
 http://localhost:5072
 
@@ -178,43 +245,30 @@ Swagger :
 http://localhost:5072/swagger
 Frontend
 cd recruit-flow-front
+
 npm install
+
 npm start
 
 Application :
 
 http://localhost:4200
-Exemple de pipeline CI
-
-Chaque push déclenche automatiquement :
-
-Frontend
-
-install
-tests Jest
-build Angular
-tests Cypress
-
-Backend
-
-restore
-build
-tests xUnit
 Sécurité
 JWT authentication
 validation backend
-séparation des responsabilités
-protection des endpoints
+protection endpoints
+séparation logique métier / accès données
 Améliorations futures
 notifications temps réel
 tri intelligent des candidatures
+analytics recrutement
 intégration email
-analytics avancées
 application mobile
 Auteur
 
 Seydi Ahmeth Ndiaye
-Étudiant en informatique – UQTR
+
+Étudiant en informatique — UQTR
 
 Technologies principales :
 
@@ -223,4 +277,4 @@ ASP.NET Core
 PostgreSQL
 Licence
 
-Projet éducatif / portfolio
+Projet éducatif / portfolio.
