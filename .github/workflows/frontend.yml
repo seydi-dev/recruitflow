@@ -7,23 +7,29 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  frontend-build-and-test:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: recruit-flow-front
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: recruit-flow-front/package-lock.json
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install frontend dependencies
+        run: npm ci
 
-      - name: Run unit tests (Jest)
-        run: npm run test
+      - name: Run frontend unit tests (Jest)
+        run: npm run test -- --runInBand
 
-      - name: Build Angular
+      - name: Build Angular app
         run: npm run build -- --configuration production
