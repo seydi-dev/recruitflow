@@ -67,15 +67,23 @@ builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Angular", policy =>
-        policy.WithOrigins("http://localhost:4200",
-                            "https://recruit-flow-front.web.app",
-                            "https://recruit-flow-front.firebaseapp.com"
-        )
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-    );
-});
+    {
+        // On lit les origines autorisées depuis la config —
+        // ce qui permet de les injecter via variable d'environnement Railway
+        // sans recompiler l'image à chaque changement de domaine.
+        var allowedOrigins = builder.Configuration
+            .GetSection("Cors:AllowedOrigins")
+            .Get<string[]>()
+            ?? [];
 
+        policy
+            .WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            // Requis si tu utilises des cookies HttpOnly pour le refresh token
+            .AllowCredentials();
+    });
+});
 // ── Controllers ───────────────────────────────────────────────
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
